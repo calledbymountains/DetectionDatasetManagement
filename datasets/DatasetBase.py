@@ -28,7 +28,7 @@ class DatasetBase(metaclass=abc.ABCMeta):
                 return None
         annotations = self.annotations()
         df = pd.DataFrame(annotations)
-        df.to_csv(savename)
+        df.to_csv(savename, index=False)
         return None
 
     def folderpresence(self, folder, create=False):
