@@ -67,10 +67,10 @@ class DatasetReader(object):
     def plot_annotations(self,query=None, df=None, plot_dir=None, plot_cols=None, overwrite=False):
         if plot_dir is None:
             plot_dir = os.path.join(self._dbdir, 'annotations')
-            try:
-                os.makedirs(plot_dir, exist_ok=True)
-            except:
-                raise(OSError, 'Cannot create the folder {}'.format(plot_dir))
+        try:
+            os.makedirs(plot_dir, exist_ok=True)
+        except:
+            raise(OSError, 'Cannot create the folder {}'.format(plot_dir))
         if (df is None) and (query is None):
             raise(ValueError, 'One of query and df must be specified.')
 
