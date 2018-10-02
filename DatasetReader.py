@@ -58,12 +58,13 @@ class DatasetReader(object):
         else:
             df = self._df
 
-        cols = cols.remove('filename')
-        df = df.groupby('filename')[cols].apply(lambda x: x.values.tolist())
+        cols.remove('filename')
+        df = df.groupby('filename')[cols].aggregate(lambda x : tuple(x))
+        df = df.reset_index()
         logging.info('Number of images = {}'.format(df.shape[0]))
         return df
 
-    def plot_annotations(self,query=None, df=None, plot_dir=None, plot_cols=None):
+    def plot_annotations(self,query=None, df=None, plot_dir=None, plot_cols=None, overwrite=False):
         if plot_dir is None:
             plot_dir = os.path.join(self._dbdir, 'annotations')
             try:
@@ -89,11 +90,16 @@ class DatasetReader(object):
 
         for index, row in df.iterrows():
             filename = row['filename']
-            image = cv2.imread(filename)
-            for xmin, ymin, xmax, ymax, category in zip(df[plot_cols[0]],df[plot_cols[1]], df[plot_cols[2]], df[plot_cols[3]], df[plot_cols[4]]):
-                cv2.rectangle(image, (ymin, xmin), (ymax, xmax), (0, 255,0),2)
-
             savefile = os.path.join(plot_dir, os.path.basename(filename))
+            if not overwrite:
+                if os.path.isfile(savefile):
+                    logging.info('The file {} already exists. Skipping'.format(savefile))
+                    continue
+            image = cv2.imread(filename)
+            for xmin, ymin, xmax, ymax, category in zip(row[plot_cols[0]],row[plot_cols[1]], row[plot_cols[2]], row[plot_cols[3]], row[plot_cols[4]]):
+                cv2.rectangle(image, (int(xmin), int(ymin)), (int(xmax), int(ymax)), (0, 255,0),2)
+                cv2.putText(image, category, (int(xmin), int(ymin)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255),2)
+
             cv2.imwrite(savefile, image)
             logging.info('The file {} was written with.'.format(savefile))
         return None
