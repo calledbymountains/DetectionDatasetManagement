@@ -11,6 +11,10 @@ class DatasetBase(metaclass=abc.ABCMeta):
 
     @property
     def name(self):
+        """
+        Returns the name of the dataset.
+        :return: (str) Name of the dataset.
+        """
         return self._name
 
     @property
